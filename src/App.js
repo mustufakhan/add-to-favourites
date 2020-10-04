@@ -78,7 +78,7 @@ class App extends React.Component {
 
 
   render(){
-    const {data, input, fav, favId} = this.state;
+    const {data, input, favId} = this.state;
 
     const filtered = data.filter(val => {
       return val.item.headline.toString().toLowerCase().indexOf(input.toString().toLowerCase()) !== -1;
@@ -91,7 +91,7 @@ class App extends React.Component {
             <input type="text" placeholder="Search for news, authors, categories and more.." value={this.state.input} onChange={this.change} />
           </form>
         </div>    
-        {favId.length > 0 ? <div className="fav">FAVOURITES : {favId.length}</div> :null  }
+        {favId.length > 0 ? <div className="fav">FAVOURITES : {favId.length}</div> :null    }
         <div className="box">
           { filtered.map((res, i) =>
             <div className="card">
