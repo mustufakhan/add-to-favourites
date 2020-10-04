@@ -40,21 +40,18 @@ class App extends React.Component {
     const {favId} = this.state;
 
     if(favId === undefined || favId === null){
-     console.log("inside if")
       this.setState({
         favId:[id]
       })
 
     }
     else{
-       console.log("inside else")
       if(favId.indexOf(id) === -1){
           this.setState({
         favId:[...favId, id]
       })
       }
     }
-    console.log("favId",favId)
     
     localStorage.setItem('fav', JSON.stringify(favId));
   }
