@@ -9,8 +9,8 @@ class App extends React.Component {
     super();
     this.state={
       data:[],
-      input:''  ,
-      favorites:[]
+      input:'',
+      favId:[]
     }
   }
 
@@ -22,9 +22,9 @@ class App extends React.Component {
       this.setState({data:res.items})
     })
 
-    // this.setState({
-    //   favId:JSON.parse(localStorage.getItem('fav'))
-    // })
+    this.setState({
+      favId:JSON.parse(localStorage.getItem('fav'))
+    })
    
   }
 
@@ -34,52 +34,51 @@ class App extends React.Component {
     })
   }
 
-  addFavorite = (res, id) => {
-    const { favorites } = this.state;
+  addFavorite = (res, e) =>{
+    e.preventDefault();
+    const id =  e.target.id;
+    const {favId} = this.state;
 
-    if (!favorites.some(alreadyFavorite => alreadyFavorite.id == res.id)) {
+    if(favId === undefined || favId === null){
+     console.log("inside if")
       this.setState({
-        favorites: [...favorites, res.id]
-      });
+        favId:[id]
+      })
+
     }
-    console.log("favorites",favorites)
-  };
+    else{
+       console.log("inside else")
+      if(favId.indexOf(id) === -1){
+          this.setState({
+        favId:[...favId, id]
+      })
+      }
+    }
+    console.log("favId",favId)
+    
+    localStorage.setItem('fav', JSON.stringify(favId));
+  }
 
-  // add = (res ,id) =>{
-  //   const {favId} = this.state;
+  remove = (res, e) =>{
+    e.preventDefault();
+    const id =  e.target.id;
+    const {favId} = this.state;
 
-  //   if(favId == null){
-  //     this.setState({
-  //       favId:id
-  //     })
-  //   }
-  //   else{
-  //     this.setState({
-  //       favId:[...favId, id]
-  //     })
-  //   }
+    const index = favId.indexOf(id);
+      if (index > -1) {
+      favId.splice(index, 1);
+      }
 
-  //   localStorage.setItem('fav', JSON.stringify(favId));
-  // }
+    this.setState({
+      favId: favId
+    })
 
-  // remove = (id) =>{
-  //   const {favId} = this.state;
-
-  //   const index = favId.indexOf(id);
-  //     if (index > -1) {
-  //     favId.splice(index, 1);
-  //     }
-
-  //   this.setState({
-  //     favId: favId
-  //   })
-
-  //   localStorage.setItem('fav', JSON.stringify(favId));
-  // }
+    localStorage.setItem('fav', JSON.stringify(favId));
+  }
 
 
   render(){
-    const {data, input, fav, favorites} = this.state;
+    const {data, input, fav, favId} = this.state;
 
     const filtered = data.filter(val => {
       return val.item.headline.toString().toLowerCase().indexOf(input.toString().toLowerCase()) !== -1;
@@ -92,20 +91,38 @@ class App extends React.Component {
             <input type="text" placeholder="Search for news, authors, categories and more.." value={this.state.input} onChange={this.change} />
           </form>
         </div>    
-      <div className="box">
-        { filtered.map((res, i) =>
-          <div className="card">
-          { favorites.includes(res.id) && <FontAwesomeIcon icon={faHeart} className="icon" size="3x"/>}
-          <img src="https://homepages.cae.wisc.edu/~ece533/images/airplane.png" alt="Denim Jeans" width="100%" height="200px" />
-          <h2>{res.item.headline}</h2>
-          <a className="price" href={res.story.url}>Url link: {res.story.url}</a>
-          <p>Author: {res.story['author-name']}</p>
-          <p>
-            {<button id={res.id} onClick={(e)=> this.addFavorite(res, e.target.id)}>Add to Favourite</button>}
-          </p>
-          </div>
-        )}
-         </div>  
+        {favId.length > 0 ? <div className="fav">FAVOURITES : {favId.length}</div> :null  }
+        <div className="box">
+          { filtered.map((res, i) =>
+            <div className="card">
+              { favId && favId.includes(res.id) ?
+               <FontAwesomeIcon
+                 icon={faHeart}
+                 className="icon"
+                 size="3x"/>
+                 : null
+              }
+              <img src="https://homepages.cae.wisc.edu/~ece533/images/airplane.png" alt="Denim Jeans" width="100%" height="200px" />
+              <h2>{res.item.headline}</h2>
+              <a className="price" href={res.story.url}>Url link: {res.story.url}</a>
+              <p>Author: {res.story['author-name']}</p>
+              <p>
+                { favId && favId.includes(res.id) ? 
+                  <button 
+                    id={res.id}
+                    onClick={(e)=> this.remove(res, e)}>
+                    Remove from Favourite
+                  </button> : 
+                  <button 
+                    id={res.id}
+                    onClick={(e)=> this.addFavorite(res, e)}>
+                    Add to Favourite
+                  </button>
+                }
+              </p>
+            </div>
+           )}
+        </div>  
       </div>
 
   );
